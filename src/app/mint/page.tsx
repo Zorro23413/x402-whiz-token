@@ -3,7 +3,10 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { isAddress } from "viem";
-import { x402fetch } from "x402-fetch";
+import { wrapFetchWithPayment } from "x402-fetch";
+
+// Create x402-enabled fetch
+const x402fetch = wrapFetchWithPayment(fetch);
 
 export default function MintPage() {
   const [address, setAddress] = useState("");
