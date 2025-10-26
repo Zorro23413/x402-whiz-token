@@ -4,7 +4,12 @@ import { base, baseSepolia } from "viem/chains";
 import { createPublicClient, http } from "viem";
 import { env } from "./env";
 
-const cdp = new CdpClient();
+// Initialize CDP Client with credentials from environment
+const cdp = new CdpClient({
+  apiKeyId: env.CDP_API_KEY_ID,
+  apiKeySecret: env.CDP_API_KEY_SECRET,
+  walletSecret: env.CDP_WALLET_SECRET,
+});
 
 const chainMap = {
   "base-sepolia": baseSepolia,
