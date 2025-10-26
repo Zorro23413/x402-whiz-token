@@ -107,12 +107,27 @@ export default function MintPage() {
         method: "eth_accounts",
       });
 
+      // Verify we're on Base Mainnet
+      const chainId = await window.ethereum!.request({
+        method: "eth_chainId",
+      });
+
+      console.log("Current chain ID:", chainId, "Expected: 0x2105 (8453)");
+
+      if (chainId !== "0x2105") {
+        throw new Error(
+          `Please switch to Base Mainnet. Current chain ID: ${chainId}`
+        );
+      }
+
       // Create wallet client with public actions for X402
       const walletClient = createWalletClient({
         account,
         chain: base,
         transport: custom(window.ethereum!),
       }).extend(publicActions);
+
+      console.log("Wallet client chain:", walletClient.chain?.id);
 
       // Create x402-enabled fetch with wallet client
       // maxValue in base units: $1.00 = 1,000,000 (USDC has 6 decimals)

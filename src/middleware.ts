@@ -6,6 +6,10 @@ import { getOrCreateSellerAccount } from "./lib/accounts";
 const network = env.NETWORK;
 const sellerAccount = await getOrCreateSellerAccount();
 
+console.log("=== X402 Middleware Configuration ===");
+console.log("Network:", network);
+console.log("Seller Account:", sellerAccount.address);
+
 export const x402Middleware = paymentMiddleware(
   sellerAccount.address,
   {
