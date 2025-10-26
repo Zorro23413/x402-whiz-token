@@ -12,6 +12,7 @@ This template built with [Next.js](https://nextjs.org), [AI SDK](https://ai-sdk.
 
 ## Features
 
+- **🪙 Token Minting Platform**: Mint 100 X402 tokens for $1.00 USDC using X402 payments
 - AI Chat + API playground to see x402 in action
 - AI agent that can pay for tools
 - Remote MCP server with "paid" tools
@@ -36,6 +37,17 @@ cd x402-ai-starter
 pnpm install
 ```
 
+### Token Minting Feature
+
+This starter now includes a **token minting platform** where users can mint 100 ERC20 tokens for $1.00 USDC using the X402 payment protocol.
+
+**Quick Setup:**
+1. Deploy the token contract from `src/contracts/MintableToken.sol`
+2. Add `TOKEN_CONTRACT_ADDRESS` to your `.env.local`
+3. Visit `/mint` to start minting tokens
+
+See [DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md) for complete setup instructions.
+
 ## Running Locally
 
 1. Sign into the [Coinbase CDP portal](https://portal.cdp.coinbase.com)
@@ -45,6 +57,7 @@ pnpm install
 - `CDP_API_KEY_ID`
 - `CDP_API_KEY_SECRET`
 - `CDP_WALLET_SECRET`
+- `TOKEN_CONTRACT_ADDRESS` (optional, for token minting feature)
 
 Using AI Gateway requires either a Vercel OIDC token, or an API Key.
 To get an OIDC token, simply run `vc link` then `vc env pull`. An API can be obtained from the [AI Gateway dashboard](https://vercel.com/ai-gateway).

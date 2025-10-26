@@ -26,6 +26,13 @@ export const x402Middleware = paymentMiddleware(
         description: "Access to protected content",
       },
     },
+    "/api/mint": {
+      price: "$1",
+      network,
+      config: {
+        description: "Mint 100 X402 tokens",
+      },
+    },
   },
   facilitator
 );
