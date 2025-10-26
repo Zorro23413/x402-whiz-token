@@ -162,6 +162,28 @@ export default function MintPage() {
         maxValue
       );
 
+      // First, let's check what payment requirements the server is sending
+      const testResponse = await fetch("/api/mint", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ address }),
+      });
+
+      if (testResponse.status === 402) {
+        const paymentReqs = await testResponse.json();
+        console.log("=== Payment Requirements from Server ===");
+        console.log(JSON.stringify(paymentReqs, null, 2));
+
+        // Check the network and chain in payment requirements
+        if (paymentReqs.accepts && paymentReqs.accepts[0]) {
+          console.log("Network:", paymentReqs.accepts[0].network);
+          console.log("Asset:", paymentReqs.accepts[0].asset);
+          console.log("Extra:", paymentReqs.accepts[0].extra);
+        }
+      }
+
       // Use x402fetch to handle payment flow automatically
       const response = await x402fetch("/api/mint", {
         method: "POST",
