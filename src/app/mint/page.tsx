@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { isAddress, createWalletClient, custom, publicActions } from "viem";
+import { isAddress, createWalletClient, custom, publicActions, http } from "viem";
 import { base } from "viem/chains";
 import { wrapFetchWithPayment } from "x402-fetch";
 
@@ -129,14 +129,27 @@ export default function MintPage() {
         );
       }
 
-      // Create wallet client with public actions for X402
-      // IMPORTANT: Do NOT include chain in wallet client - let it auto-detect
+      // Create TWO separate clients like the example might be doing
+      // Public client for reading blockchain state
+      const transport = http("https://mainnet.base.org");
+
+      // Wallet client for signing - using custom transport from MetaMask
       const walletClient = createWalletClient({
         account,
+        chain: base,
         transport: custom(window.ethereum!),
       }).extend(publicActions);
 
       console.log("Wallet client chain:", walletClient.chain?.id);
+      console.log("Wallet client account:", walletClient.account?.address);
+
+      // Test that the wallet client can actually get chain ID
+      try {
+        const testChainId = await walletClient.getChainId();
+        console.log("Wallet client getChainId():", testChainId);
+      } catch (err) {
+        console.error("Failed to get chain ID from wallet client:", err);
+      }
 
       // Create x402-enabled fetch with wallet client
       // maxValue in base units: $1.00 = 1,000,000 (USDC has 6 decimals)
