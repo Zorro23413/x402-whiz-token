@@ -117,7 +117,21 @@ export default function MintPage() {
       // Create x402-enabled fetch with wallet client
       // maxValue in base units: $1.00 = 1,000,000 (USDC has 6 decimals)
       const maxValue = BigInt(1_000_000); // Allow up to $1.00
-      const x402fetch = wrapFetchWithPayment(fetch, walletClient, maxValue);
+
+      // Configure X402 for Base Mainnet
+      const x402Config = {
+        evmConfig: {
+          rpcUrl: "https://mainnet.base.org"
+        }
+      };
+
+      const x402fetch = wrapFetchWithPayment(
+        fetch,
+        walletClient,
+        maxValue,
+        undefined, // use default payment requirements selector
+        x402Config
+      );
 
       // Use x402fetch to handle payment flow automatically
       const response = await x402fetch("/api/mint", {
