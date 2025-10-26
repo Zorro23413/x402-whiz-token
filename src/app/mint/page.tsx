@@ -57,10 +57,10 @@ export default function MintPage() {
           {/* Header */}
           <div className="text-center mb-8">
             <h1 className="text-4xl font-bold text-white mb-2">
-              X402 Token Minting
+              Whiz402 Token Minting
             </h1>
             <p className="text-gray-300">
-              Mint 100 X402 tokens using the X402 payment protocol
+              Mint 100 Whiz402 tokens using the X402 payment protocol
             </p>
             <div className="mt-4 inline-flex items-center gap-2 bg-purple-500/20 px-4 py-2 rounded-full">
               <span className="text-sm text-purple-200">Price:</span>
@@ -130,7 +130,7 @@ export default function MintPage() {
                 <div className="flex justify-between">
                   <span className="text-gray-400">Amount:</span>
                   <span className="text-white font-medium">
-                    {result.amount} X402 Tokens
+                    {result.amount} Whiz402 Tokens
                   </span>
                 </div>
                 <div className="flex justify-between">
@@ -166,7 +166,7 @@ export default function MintPage() {
               <li>Enter the Ethereum address to receive tokens</li>
               <li>Click "Mint 100 Tokens" to initiate payment</li>
               <li>Pay $1.00 USDC via X402 protocol</li>
-              <li>Receive 100 X402 tokens instantly</li>
+              <li>Receive 100 Whiz402 tokens instantly</li>
             </ol>
           </div>
         </div>
