@@ -133,9 +133,10 @@ export default function MintPage() {
       // maxValue in base units: $1.00 = 1,000,000 (USDC has 6 decimals)
       const maxValue = BigInt(1_000_000); // Allow up to $1.00
 
-      // Configure X402 for Base Mainnet
+      // Configure X402 for Base Mainnet with explicit chain config
       const x402Config = {
         evmConfig: {
+          chain: base,
           rpcUrl: "https://mainnet.base.org"
         }
       };
