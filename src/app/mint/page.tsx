@@ -1,22 +1,97 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { isAddress } from "viem";
+import { isAddress, createWalletClient, custom } from "viem";
+import { base } from "viem/chains";
 import { wrapFetchWithPayment } from "x402-fetch";
-
-// Create x402-enabled fetch
-const x402fetch = wrapFetchWithPayment(fetch);
 
 export default function MintPage() {
   const [address, setAddress] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
+  const [walletConnected, setWalletConnected] = useState(false);
+  const [walletAddress, setWalletAddress] = useState<string>("");
+
+  // Check if wallet is connected on mount
+  useEffect(() => {
+    checkWalletConnection();
+  }, []);
+
+  const checkWalletConnection = async () => {
+    if (typeof window.ethereum !== "undefined") {
+      try {
+        const accounts = await window.ethereum.request({
+          method: "eth_accounts",
+        });
+        if (accounts.length > 0) {
+          setWalletConnected(true);
+          setWalletAddress(accounts[0]);
+          setAddress(accounts[0]); // Auto-fill recipient address
+        }
+      } catch (err) {
+        console.error("Failed to check wallet connection:", err);
+      }
+    }
+  };
+
+  const connectWallet = async () => {
+    if (typeof window.ethereum === "undefined") {
+      setError("Please install MetaMask or another Web3 wallet");
+      return;
+    }
+
+    try {
+      const accounts = await window.ethereum.request({
+        method: "eth_requestAccounts",
+      });
+
+      // Switch to Base network
+      try {
+        await window.ethereum.request({
+          method: "wallet_switchEthereumChain",
+          params: [{ chainId: "0x2105" }], // Base Mainnet = 8453 = 0x2105
+        });
+      } catch (switchError: any) {
+        // If chain doesn't exist, add it
+        if (switchError.code === 4902) {
+          await window.ethereum.request({
+            method: "wallet_addEthereumChain",
+            params: [
+              {
+                chainId: "0x2105",
+                chainName: "Base",
+                nativeCurrency: {
+                  name: "Ethereum",
+                  symbol: "ETH",
+                  decimals: 18,
+                },
+                rpcUrls: ["https://mainnet.base.org"],
+                blockExplorerUrls: ["https://basescan.org"],
+              },
+            ],
+          });
+        }
+      }
+
+      setWalletConnected(true);
+      setWalletAddress(accounts[0]);
+      setAddress(accounts[0]); // Auto-fill recipient address
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to connect wallet");
+    }
+  };
 
   const handleMint = async () => {
     setError(null);
     setResult(null);
+
+    // Check wallet connection
+    if (!walletConnected) {
+      setError("Please connect your wallet first");
+      return;
+    }
 
     // Validate address
     if (!address || !isAddress(address)) {
@@ -27,6 +102,17 @@ export default function MintPage() {
     setLoading(true);
 
     try {
+      // Create wallet client for X402 payments
+      const walletClient = createWalletClient({
+        chain: base,
+        transport: custom(window.ethereum!),
+      });
+
+      // Create x402-enabled fetch with wallet client
+      const x402fetch = wrapFetchWithPayment(fetch, {
+        walletClient,
+      });
+
       // Use x402fetch to handle payment flow automatically
       const response = await x402fetch("/api/mint", {
         method: "POST",
@@ -68,6 +154,27 @@ export default function MintPage() {
             </div>
           </div>
 
+          {/* Wallet Connection */}
+          {!walletConnected ? (
+            <div className="mb-6">
+              <Button
+                onClick={connectWallet}
+                className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-semibold py-3 rounded-lg transition-all duration-200"
+              >
+                Connect Wallet to Continue
+              </Button>
+              <p className="text-center text-sm text-gray-400 mt-2">
+                Connect your wallet to mint tokens
+              </p>
+            </div>
+          ) : (
+            <div className="mb-4 p-3 bg-green-500/20 border border-green-500/50 rounded-lg">
+              <p className="text-green-200 text-sm">
+                ✓ Wallet Connected: {walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}
+              </p>
+            </div>
+          )}
+
           {/* Mint Form */}
           <div className="space-y-4">
             <div>
@@ -84,13 +191,13 @@ export default function MintPage() {
                 onChange={(e) => setAddress(e.target.value)}
                 placeholder="0x..."
                 className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                disabled={loading}
+                disabled={loading || !walletConnected}
               />
             </div>
 
             <Button
               onClick={handleMint}
-              disabled={loading || !address}
+              disabled={loading || !address || !walletConnected}
               className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold py-3 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? "Minting..." : "Mint 100 Tokens"}
