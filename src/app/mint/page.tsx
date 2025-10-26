@@ -115,7 +115,9 @@ export default function MintPage() {
       }).extend(publicActions);
 
       // Create x402-enabled fetch with wallet client
-      const x402fetch = wrapFetchWithPayment(fetch, walletClient);
+      // maxValue in base units: $1.00 = 1,000,000 (USDC has 6 decimals)
+      const maxValue = BigInt(1_000_000); // Allow up to $1.00
+      const x402fetch = wrapFetchWithPayment(fetch, walletClient, maxValue);
 
       // Use x402fetch to handle payment flow automatically
       const response = await x402fetch("/api/mint", {
@@ -134,7 +136,20 @@ export default function MintPage() {
 
       setResult(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
+      console.error("Mint error:", err);
+
+      // Better error message extraction
+      let errorMessage = "An error occurred";
+
+      if (err instanceof Error) {
+        errorMessage = err.message;
+      } else if (typeof err === "object" && err !== null) {
+        errorMessage = JSON.stringify(err, null, 2);
+      } else if (typeof err === "string") {
+        errorMessage = err;
+      }
+
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
