@@ -27,7 +27,7 @@ export const x402Middleware = paymentMiddleware(
       },
     },
     "/api/mint": {
-      price: "1000000", // 1 USDC in smallest units (6 decimals)
+      price: "$0.10", // Test with lower amount first
       network,
       config: {
         description: "Mint 100 Whiz402 tokens",
