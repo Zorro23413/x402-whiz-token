@@ -27,11 +27,10 @@ export const x402Middleware = paymentMiddleware(
       },
     },
     "/api/mint": {
-      price: "$1",
+      price: "1000000", // 1 USDC in smallest units (6 decimals)
       network,
       config: {
         description: "Mint 100 Whiz402 tokens",
-        maxAmount: "$10", // Allow up to $10 to be safe
       },
     },
   },
