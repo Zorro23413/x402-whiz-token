@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { isAddress } from "viem";
+import { x402fetch } from "x402-fetch";
 
 export default function MintPage() {
   const [address, setAddress] = useState("");
@@ -23,7 +24,8 @@ export default function MintPage() {
     setLoading(true);
 
     try {
-      const response = await fetch("/api/mint", {
+      // Use x402fetch to handle payment flow automatically
+      const response = await x402fetch("/api/mint", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
