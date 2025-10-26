@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { isAddress, createWalletClient, custom, publicActions } from "viem";
-import { base, baseSepolia } from "viem/chains";
+import { base } from "viem/chains";
 import { wrapFetchWithPayment } from "x402-fetch";
 
 export default function MintPage() {
@@ -47,11 +47,11 @@ export default function MintPage() {
         method: "eth_requestAccounts",
       });
 
-      // Switch to Base Sepolia network for testing
+      // Switch to Base Mainnet
       try {
         await window.ethereum.request({
           method: "wallet_switchEthereumChain",
-          params: [{ chainId: "0x14a34" }], // Base Sepolia = 84532 = 0x14a34
+          params: [{ chainId: "0x2105" }], // Base Mainnet = 8453 = 0x2105
         });
       } catch (switchError: any) {
         // If chain doesn't exist, add it
@@ -60,15 +60,15 @@ export default function MintPage() {
             method: "wallet_addEthereumChain",
             params: [
               {
-                chainId: "0x14a34",
-                chainName: "Base Sepolia",
+                chainId: "0x2105",
+                chainName: "Base",
                 nativeCurrency: {
                   name: "Ethereum",
                   symbol: "ETH",
                   decimals: 18,
                 },
-                rpcUrls: ["https://sepolia.base.org"],
-                blockExplorerUrls: ["https://sepolia.basescan.org"],
+                rpcUrls: ["https://mainnet.base.org"],
+                blockExplorerUrls: ["https://basescan.org"],
               },
             ],
           });
@@ -116,23 +116,23 @@ export default function MintPage() {
         method: "eth_accounts",
       });
 
-      // Verify we're on Base Sepolia
+      // Verify we're on Base Mainnet
       const chainId = await window.ethereum!.request({
         method: "eth_chainId",
       });
 
-      console.log("Current chain ID:", chainId, "Expected: 0x14a34 (84532)");
+      console.log("Current chain ID:", chainId, "Expected: 0x2105 (8453)");
 
-      if (chainId !== "0x14a34") {
+      if (chainId !== "0x2105") {
         throw new Error(
-          `Please switch to Base Sepolia. Current chain ID: ${chainId}`
+          `Please switch to Base Mainnet. Current chain ID: ${chainId}`
         );
       }
 
       // Create wallet client with public actions for X402
+      // IMPORTANT: Do NOT include chain in wallet client - let it auto-detect
       const walletClient = createWalletClient({
         account,
-        chain: baseSepolia,
         transport: custom(window.ethereum!),
       }).extend(publicActions);
 
@@ -142,20 +142,11 @@ export default function MintPage() {
       // maxValue in base units: $1.00 = 1,000,000 (USDC has 6 decimals)
       const maxValue = BigInt(1_000_000); // Allow up to $1.00
 
-      // Configure X402 for Base Sepolia with explicit chain config
-      const x402Config = {
-        evmConfig: {
-          chain: baseSepolia,
-          rpcUrl: "https://sepolia.base.org"
-        }
-      };
-
+      // Don't pass config - let x402 auto-detect everything from wallet
       const x402fetch = wrapFetchWithPayment(
         fetch,
         walletClient,
-        maxValue,
-        undefined, // use default payment requirements selector
-        x402Config
+        maxValue
       );
 
       // Use x402fetch to handle payment flow automatically
