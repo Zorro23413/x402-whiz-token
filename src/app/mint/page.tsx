@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { isAddress, createWalletClient, custom, publicActions } from "viem";
-import { base } from "viem/chains";
+import { base, baseSepolia } from "viem/chains";
 import { wrapFetchWithPayment } from "x402-fetch";
 
 export default function MintPage() {
@@ -47,11 +47,11 @@ export default function MintPage() {
         method: "eth_requestAccounts",
       });
 
-      // Switch to Base network
+      // Switch to Base Sepolia network for testing
       try {
         await window.ethereum.request({
           method: "wallet_switchEthereumChain",
-          params: [{ chainId: "0x2105" }], // Base Mainnet = 8453 = 0x2105
+          params: [{ chainId: "0x14a34" }], // Base Sepolia = 84532 = 0x14a34
         });
       } catch (switchError: any) {
         // If chain doesn't exist, add it
@@ -60,15 +60,15 @@ export default function MintPage() {
             method: "wallet_addEthereumChain",
             params: [
               {
-                chainId: "0x2105",
-                chainName: "Base",
+                chainId: "0x14a34",
+                chainName: "Base Sepolia",
                 nativeCurrency: {
                   name: "Ethereum",
                   symbol: "ETH",
                   decimals: 18,
                 },
-                rpcUrls: ["https://mainnet.base.org"],
-                blockExplorerUrls: ["https://basescan.org"],
+                rpcUrls: ["https://sepolia.base.org"],
+                blockExplorerUrls: ["https://sepolia.basescan.org"],
               },
             ],
           });
@@ -78,9 +78,18 @@ export default function MintPage() {
       setWalletConnected(true);
       setWalletAddress(accounts[0]);
       setAddress(accounts[0]); // Auto-fill recipient address
+      setError(null); // Clear any previous errors
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to connect wallet");
     }
+  };
+
+  const disconnectWallet = () => {
+    setWalletConnected(false);
+    setWalletAddress("");
+    setAddress("");
+    setError(null);
+    setResult(null);
   };
 
   const handleMint = async () => {
@@ -107,23 +116,23 @@ export default function MintPage() {
         method: "eth_accounts",
       });
 
-      // Verify we're on Base Mainnet
+      // Verify we're on Base Sepolia
       const chainId = await window.ethereum!.request({
         method: "eth_chainId",
       });
 
-      console.log("Current chain ID:", chainId, "Expected: 0x2105 (8453)");
+      console.log("Current chain ID:", chainId, "Expected: 0x14a34 (84532)");
 
-      if (chainId !== "0x2105") {
+      if (chainId !== "0x14a34") {
         throw new Error(
-          `Please switch to Base Mainnet. Current chain ID: ${chainId}`
+          `Please switch to Base Sepolia. Current chain ID: ${chainId}`
         );
       }
 
       // Create wallet client with public actions for X402
       const walletClient = createWalletClient({
         account,
-        chain: base,
+        chain: baseSepolia,
         transport: custom(window.ethereum!),
       }).extend(publicActions);
 
@@ -133,11 +142,11 @@ export default function MintPage() {
       // maxValue in base units: $1.00 = 1,000,000 (USDC has 6 decimals)
       const maxValue = BigInt(1_000_000); // Allow up to $1.00
 
-      // Configure X402 for Base Mainnet with explicit chain config
+      // Configure X402 for Base Sepolia with explicit chain config
       const x402Config = {
         evmConfig: {
-          chain: base,
-          rpcUrl: "https://mainnet.base.org"
+          chain: baseSepolia,
+          rpcUrl: "https://sepolia.base.org"
         }
       };
 
@@ -217,10 +226,16 @@ export default function MintPage() {
               </p>
             </div>
           ) : (
-            <div className="mb-4 p-3 bg-green-500/20 border border-green-500/50 rounded-lg">
+            <div className="mb-4 p-3 bg-green-500/20 border border-green-500/50 rounded-lg flex justify-between items-center">
               <p className="text-green-200 text-sm">
                 ✓ Wallet Connected: {walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}
               </p>
+              <Button
+                onClick={disconnectWallet}
+                className="text-xs bg-red-500/20 hover:bg-red-500/30 text-red-200 px-3 py-1 rounded"
+              >
+                Disconnect
+              </Button>
             </div>
           )}
 
