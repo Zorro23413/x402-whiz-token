@@ -30,7 +30,8 @@ export const x402Middleware = paymentMiddleware(
       price: "$1",
       network,
       config: {
-        description: "Mint 100 X402 tokens",
+        description: "Mint 100 Whiz402 tokens",
+        maxAmount: "$10", // Allow up to $10 to be safe
       },
     },
   },
