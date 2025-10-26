@@ -102,8 +102,14 @@ export default function MintPage() {
     setLoading(true);
 
     try {
-      // Create wallet client for X402 payments
+      // Get the connected account
+      const [account] = await window.ethereum!.request({
+        method: "eth_accounts",
+      });
+
+      // Create wallet client for X402 payments with account
       const walletClient = createWalletClient({
+        account,
         chain: base,
         transport: custom(window.ethereum!),
       });
