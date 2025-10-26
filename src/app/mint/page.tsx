@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { isAddress, createWalletClient, custom } from "viem";
+import { isAddress, createWalletClient, custom, publicActions } from "viem";
 import { base } from "viem/chains";
 import { wrapFetchWithPayment } from "x402-fetch";
 
@@ -107,17 +107,15 @@ export default function MintPage() {
         method: "eth_accounts",
       });
 
-      // Create wallet client for X402 payments with account
+      // Create wallet client with public actions for X402
       const walletClient = createWalletClient({
         account,
         chain: base,
         transport: custom(window.ethereum!),
-      });
+      }).extend(publicActions);
 
       // Create x402-enabled fetch with wallet client
-      const x402fetch = wrapFetchWithPayment(fetch, {
-        walletClient,
-      });
+      const x402fetch = wrapFetchWithPayment(fetch, walletClient);
 
       // Use x402fetch to handle payment flow automatically
       const response = await x402fetch("/api/mint", {
