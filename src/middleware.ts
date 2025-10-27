@@ -10,12 +10,7 @@ console.log("=== X402 Middleware Configuration ===");
 console.log("Network:", network);
 console.log("Seller Account:", sellerAccount.address);
 
-// Use PayAI's public facilitator - no authentication required
-// PayAI provides a free, public x402 facilitator that supports Base mainnet
-const facilitatorConfig = {
-  url: "https://facilitator.payai.network"
-};
-
+// Try without facilitator - x402-next v0.7.0 should handle self-hosted verification better
 export const x402Middleware = paymentMiddleware(
   sellerAccount.address,
   {
@@ -42,8 +37,9 @@ export const x402Middleware = paymentMiddleware(
         description: "Mint 100 Whiz402 tokens",
       },
     },
-  },
-  facilitatorConfig // Use CDP facilitator with manual auth
+  }
+  // No facilitator - self-hosted verification
+  // With v0.7.0, this should provide better error messages
 );
 
 export default async function middleware(request: NextRequest) {
