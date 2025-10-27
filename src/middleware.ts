@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { paymentMiddleware } from "x402-next";
+import { Coinbase } from "@coinbase/cdp-sdk";
 import { env } from "./lib/env";
 import { getOrCreateSellerAccount } from "./lib/accounts";
 
@@ -10,9 +11,54 @@ console.log("=== X402 Middleware Configuration ===");
 console.log("Network:", network);
 console.log("Seller Account:", sellerAccount.address);
 
-// Try thirdweb facilitator as an alternative
+// Create CDP facilitator config manually to avoid @coinbase/x402 package issues
+// The @coinbase/x402 package fails in Vercel due to import issues
+const COINBASE_FACILITATOR_URL = "https://api.cdp.coinbase.com/platform/v2/x402";
+
+// Function to generate CDP JWT auth headers
+async function createCdpAuthHeaders() {
+  try {
+    const apiKeyId = env.CDP_API_KEY_ID;
+    const apiKeySecret = env.CDP_API_KEY_SECRET;
+
+    if (!apiKeyId || !apiKeySecret) {
+      console.error("Missing CDP API keys");
+      return {};
+    }
+
+    // Use CDP SDK to generate JWT for authentication
+    const { generateJwt } = await import("@coinbase/cdp-sdk/auth");
+    const requestHost = "api.cdp.coinbase.com";
+
+    return {
+      verify: {
+        Authorization: `Bearer ${await generateJwt({
+          apiKeyId,
+          apiKeySecret,
+          requestMethod: "POST",
+          requestHost,
+          requestPath: "/platform/v2/x402/verify"
+        })}`
+      },
+      settle: {
+        Authorization: `Bearer ${await generateJwt({
+          apiKeyId,
+          apiKeySecret,
+          requestMethod: "POST",
+          requestHost,
+          requestPath: "/platform/v2/x402/settle"
+        })}`
+      }
+    };
+  } catch (error) {
+    console.error("Failed to create CDP auth headers:", error);
+    return {};
+  }
+}
+
 const facilitatorConfig = {
-  url: "https://x402-facilitator.thirdweb.com"
+  url: COINBASE_FACILITATOR_URL,
+  createAuthHeaders: createCdpAuthHeaders
 };
 
 export const x402Middleware = paymentMiddleware(
@@ -42,7 +88,7 @@ export const x402Middleware = paymentMiddleware(
       },
     },
   },
-  facilitatorConfig // Use thirdweb facilitator
+  facilitatorConfig // Use CDP facilitator with manual auth
 );
 
 export default async function middleware(request: NextRequest) {
