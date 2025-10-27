@@ -185,6 +185,7 @@ export default function MintPage() {
       }
 
       // Use x402fetch to handle payment flow automatically
+      console.log("Starting x402 payment flow...");
       const response = await x402fetch("/api/mint", {
         method: "POST",
         headers: {
@@ -193,23 +194,64 @@ export default function MintPage() {
         body: JSON.stringify({ address }),
       });
 
+      console.log("x402fetch response status:", response.status);
+      console.log("x402fetch response ok:", response.ok);
+
       const data = await response.json();
+      console.log("Response data:", data);
+      console.log("Response data (stringified):", JSON.stringify(data, null, 2));
+      console.log("Data keys:", Object.keys(data));
+      console.log("Data.error:", data.error);
+      console.log("Data.accepts:", data.accepts);
 
       if (!response.ok) {
-        throw new Error(data.error || "Failed to mint tokens");
+        // Extract error information from X402 response
+        let errorMsg = "Payment failed: ";
+
+        if (data.error) {
+          console.log("Error type:", typeof data.error);
+          console.log("Error object:", data.error);
+
+          if (typeof data.error === 'string') {
+            errorMsg += data.error;
+          } else if (data.error.message) {
+            errorMsg += data.error.message;
+          } else {
+            errorMsg += JSON.stringify(data.error);
+          }
+        } else {
+          errorMsg += "No error details provided. Full response: " + JSON.stringify(data);
+        }
+
+        console.error("Response not ok, full data:", JSON.stringify(data, null, 2));
+        console.error("Payment error:", errorMsg);
+        throw new Error(errorMsg);
       }
 
       setResult(data);
     } catch (err) {
       console.error("Mint error:", err);
+      console.error("Error type:", typeof err);
+      console.error("Error keys:", err && typeof err === "object" ? Object.keys(err) : "N/A");
 
       // Better error message extraction
       let errorMessage = "An error occurred";
 
       if (err instanceof Error) {
         errorMessage = err.message;
+        console.error("Error stack:", err.stack);
       } else if (typeof err === "object" && err !== null) {
-        errorMessage = JSON.stringify(err, null, 2);
+        // Try to extract meaningful error info
+        const errObj = err as any;
+        if (errObj.message) {
+          errorMessage = errObj.message;
+        } else if (errObj.reason) {
+          errorMessage = errObj.reason;
+        } else if (errObj.code) {
+          errorMessage = `Error code: ${errObj.code}`;
+        } else {
+          errorMessage = JSON.stringify(err, Object.getOwnPropertyNames(err), 2);
+        }
       } else if (typeof err === "string") {
         errorMessage = err;
       }

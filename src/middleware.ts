@@ -37,7 +37,7 @@ export const x402Middleware = paymentMiddleware(
       },
     },
   }
-  // Removed facilitator - using self-hosted payment verification
+  // No facilitator - self-hosted payment verification (checks on-chain directly)
 );
 
 export default async function middleware(request: NextRequest) {
