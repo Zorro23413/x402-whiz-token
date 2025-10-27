@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { paymentMiddleware } from "x402-next";
-import { facilitator } from "@coinbase/x402";
 import { env } from "./lib/env";
 import { getOrCreateSellerAccount } from "./lib/accounts";
 
@@ -10,6 +9,11 @@ const sellerAccount = await getOrCreateSellerAccount();
 console.log("=== X402 Middleware Configuration ===");
 console.log("Network:", network);
 console.log("Seller Account:", sellerAccount.address);
+
+// Try thirdweb facilitator as an alternative
+const facilitatorConfig = {
+  url: "https://x402-facilitator.thirdweb.com"
+};
 
 export const x402Middleware = paymentMiddleware(
   sellerAccount.address,
@@ -38,7 +42,7 @@ export const x402Middleware = paymentMiddleware(
       },
     },
   },
-  facilitator // Use official Coinbase facilitator for payment verification
+  facilitatorConfig // Use thirdweb facilitator
 );
 
 export default async function middleware(request: NextRequest) {
