@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { paymentMiddleware } from "x402-next";
+import { facilitator } from "@coinbase/x402";
 import { env } from "./lib/env";
 import { getOrCreateSellerAccount } from "./lib/accounts";
 
@@ -30,14 +31,14 @@ export const x402Middleware = paymentMiddleware(
       },
     },
     "/api/mint": {
-      price: "$0.10", // Test with lower amount first
+      price: "$0.10",
       network,
       config: {
         description: "Mint 100 Whiz402 tokens",
       },
     },
-  }
-  // No facilitator - self-hosted payment verification (checks on-chain directly)
+  },
+  facilitator // Use official Coinbase facilitator for payment verification
 );
 
 export default async function middleware(request: NextRequest) {
