@@ -272,11 +272,11 @@ export default function MintPage() {
               Whiz402 Token Minting
             </h1>
             <p className="text-gray-300">
-              Mint 100 Whiz402 tokens using X402 payment protocol
+              Mint 50,000 Whiz402 tokens using X402 payment protocol
             </p>
             <div className="mt-4 inline-flex items-center gap-2 bg-purple-500/20 px-4 py-2 rounded-full">
               <span className="text-sm text-purple-200">Price:</span>
-              <span className="text-lg font-bold text-white">$0.10 USDC</span>
+              <span className="text-lg font-bold text-white">$1.00 USDC</span>
             </div>
           </div>
 
@@ -332,7 +332,7 @@ export default function MintPage() {
               disabled={loading || !address || !walletConnected}
               className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold py-3 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? "Minting..." : "Mint 100 Tokens"}
+              {loading ? "Minting..." : "Mint 50,000 Tokens"}
             </Button>
           </div>
 
@@ -403,9 +403,9 @@ export default function MintPage() {
             </h3>
             <ol className="text-xs text-gray-400 space-y-1 list-decimal list-inside">
               <li>Enter the Ethereum address to receive tokens</li>
-              <li>Click "Mint 100 Tokens" to initiate payment</li>
-              <li>Pay $0.10 USDC via X402 protocol</li>
-              <li>Receive 100 Whiz402 tokens instantly</li>
+              <li>Click "Mint 50,000 Tokens" to initiate payment</li>
+              <li>Pay $1.00 USDC via X402 protocol</li>
+              <li>Receive 50,000 Whiz402 tokens instantly</li>
             </ol>
           </div>
         </div>

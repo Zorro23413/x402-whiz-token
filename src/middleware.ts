@@ -31,10 +31,10 @@ export const x402Middleware = paymentMiddleware(
       },
     },
     "/api/mint": {
-      price: "$0.10",
+      price: "$1.00",
       network,
       config: {
-        description: "Mint 100 Whiz402 tokens",
+        description: "Mint 50,000 Whiz402 tokens",
       },
     },
   },

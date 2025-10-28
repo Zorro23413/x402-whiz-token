@@ -18,7 +18,7 @@ const TOKEN_ABI = parseAbi([
   'event TokensMinted(address indexed to, uint256 amount, uint256 newTotalSupply)'
 ]);
 
-const MINT_AMOUNT = 100n * 10n ** 18n; // 100 tokens with 18 decimals
+const MINT_AMOUNT = 50_000n * 10n ** 18n; // 50,000 tokens with 18 decimals
 
 export interface TokenMintResult {
   success: boolean;
@@ -66,7 +66,7 @@ export async function mintTokens(
       return {
         success: false,
         recipient: recipientAddress,
-        amount: '100',
+        amount: '50000',
         error: 'Transaction failed'
       };
     }
@@ -74,7 +74,7 @@ export async function mintTokens(
     return {
       success: true,
       transactionHash: hash,
-      amount: '100',
+      amount: '50000',
       recipient: recipientAddress,
     };
   } catch (error) {
@@ -82,7 +82,7 @@ export async function mintTokens(
     return {
       success: false,
       recipient: recipientAddress,
-      amount: '100',
+      amount: '50000',
       error: error instanceof Error ? error.message : 'Unknown error'
     };
   }

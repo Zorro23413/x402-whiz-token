@@ -7,7 +7,7 @@ import z from "zod";
 /**
  * POST /api/mint
  *
- * Mints 100 tokens to the specified address
+ * Mints 50,000 tokens to the specified address
  * Protected by X402 payment middleware ($1.00 per mint)
  */
 export const POST = async (request: NextRequest) => {
@@ -103,9 +103,9 @@ export const GET = async () => {
   return NextResponse.json({
     endpoint: "/api/mint",
     method: "POST",
-    description: "Mint 100 Whiz402 tokens to any address",
+    description: "Mint 50,000 Whiz402 tokens to any address",
     payment: {
-      price: "$0.10",
+      price: "$1.00",
       protocol: "x402",
     },
     tokenContract: tokenContractAddress || "Not configured",
