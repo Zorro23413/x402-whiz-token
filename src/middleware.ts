@@ -46,6 +46,14 @@ export const x402Middleware = paymentMiddleware(
         maxTimeoutSeconds: 120,
       },
     },
+    "/api/mint-solana": {
+      price: "$0.10",
+      network: "solana", // Solana mainnet
+      config: {
+        description: "Mint 50,000 SPL tokens on Solana",
+        maxTimeoutSeconds: 120,
+      },
+    },
   },
   {
     url: "https://facilitator.payai.network"
