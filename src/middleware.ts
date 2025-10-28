@@ -10,7 +10,7 @@ console.log("=== X402 Middleware Configuration ===");
 console.log("Network:", network);
 console.log("Seller Account:", sellerAccount.address);
 
-// Try without facilitator - x402-next v0.7.0 should handle self-hosted verification better
+// Use PayAI facilitator - it's working for other projects
 export const x402Middleware = paymentMiddleware(
   sellerAccount.address,
   {
@@ -37,9 +37,10 @@ export const x402Middleware = paymentMiddleware(
         description: "Mint 100 Whiz402 tokens",
       },
     },
+  },
+  {
+    url: "https://facilitator.payai.network"
   }
-  // No facilitator - self-hosted verification
-  // With v0.7.0, this should provide better error messages
 );
 
 export default async function middleware(request: NextRequest) {
