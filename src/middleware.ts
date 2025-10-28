@@ -35,6 +35,7 @@ export const x402Middleware = paymentMiddleware(
       network,
       config: {
         description: "Mint 50,000 Whiz402 tokens",
+        maxTimeoutSeconds: 120, // Increase timeout for Base network minting
       },
     },
   },

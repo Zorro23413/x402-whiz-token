@@ -56,21 +56,8 @@ export async function mintTokens(
       args: [recipientAddress],
     });
 
-    // Wait for transaction confirmation
-    const receipt = await publicClient.waitForTransactionReceipt({
-      hash,
-      confirmations: 1
-    });
-
-    if (receipt.status !== 'success') {
-      return {
-        success: false,
-        recipient: recipientAddress,
-        amount: '50000',
-        error: 'Transaction failed'
-      };
-    }
-
+    // Return immediately without waiting for confirmation
+    // This prevents Vercel 60s timeout while transaction completes on-chain
     return {
       success: true,
       transactionHash: hash,
