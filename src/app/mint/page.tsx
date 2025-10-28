@@ -162,9 +162,15 @@ export default function MintPage() {
         maxValue
       );
 
-      // Use x402fetch to handle payment flow automatically
+      // Use x402fetch to handle payment flow automatically with timeout
       console.log("Starting x402 payment flow...");
-      const response = await x402fetch("/api/mint", {
+
+      // Add 60 second timeout
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("Request timed out after 60 seconds. Your payment may have been processed - please check the blockchain explorer.")), 60000)
+      );
+
+      const fetchPromise = x402fetch("/api/mint", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -172,6 +178,7 @@ export default function MintPage() {
         body: JSON.stringify({ address }),
       });
 
+      const response = await Promise.race([fetchPromise, timeoutPromise]) as Response;
       const data = await response.json();
 
       if (!response.ok) {
