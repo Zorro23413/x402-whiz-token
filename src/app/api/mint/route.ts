@@ -103,9 +103,9 @@ export const GET = async () => {
   return NextResponse.json({
     endpoint: "/api/mint",
     method: "POST",
-    description: "Mint 100 X402 tokens to any address",
+    description: "Mint 100 Whiz402 tokens to any address",
     payment: {
-      price: "$1.00",
+      price: "$0.10",
       protocol: "x402",
     },
     tokenContract: tokenContractAddress || "Not configured",
