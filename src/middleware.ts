@@ -38,6 +38,14 @@ export const x402Middleware = paymentMiddleware(
         maxTimeoutSeconds: 120, // Increase timeout for Base network minting
       },
     },
+    "/api/mint-cheap": {
+      price: "$0.10",
+      network,
+      config: {
+        description: "Mint 50,000 Whiz402 tokens (Budget option)",
+        maxTimeoutSeconds: 120,
+      },
+    },
   },
   {
     url: "https://facilitator.payai.network"

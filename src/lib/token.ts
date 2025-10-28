@@ -34,7 +34,8 @@ export interface TokenMintResult {
 export async function mintTokens(
   contractAddress: `0x${string}`,
   recipientAddress: `0x${string}`,
-  sellerAccount: Account
+  sellerAccount: Account,
+  amount?: bigint // Optional custom amount, defaults to contract's MINT_AMOUNT
 ): Promise<TokenMintResult> {
   try {
     const walletClient = createWalletClient({
