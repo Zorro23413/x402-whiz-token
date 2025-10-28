@@ -155,34 +155,12 @@ export default function MintPage() {
       // maxValue in base units: $1.00 = 1,000,000 (USDC has 6 decimals)
       const maxValue = BigInt(1_000_000); // Allow up to $1.00
 
-      // Don't pass config - let x402 auto-detect everything from wallet
+      // Create x402fetch with wallet client
       const x402fetch = wrapFetchWithPayment(
         fetch,
         walletClient,
         maxValue
       );
-
-      // First, let's check what payment requirements the server is sending
-      const testResponse = await fetch("/api/mint", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ address }),
-      });
-
-      if (testResponse.status === 402) {
-        const paymentReqs = await testResponse.json();
-        console.log("=== Payment Requirements from Server ===");
-        console.log(JSON.stringify(paymentReqs, null, 2));
-
-        // Check the network and chain in payment requirements
-        if (paymentReqs.accepts && paymentReqs.accepts[0]) {
-          console.log("Network:", paymentReqs.accepts[0].network);
-          console.log("Asset:", paymentReqs.accepts[0].asset);
-          console.log("Extra:", paymentReqs.accepts[0].extra);
-        }
-      }
 
       // Use x402fetch to handle payment flow automatically
       console.log("Starting x402 payment flow...");
@@ -194,64 +172,33 @@ export default function MintPage() {
         body: JSON.stringify({ address }),
       });
 
-      console.log("x402fetch response status:", response.status);
-      console.log("x402fetch response ok:", response.ok);
-
       const data = await response.json();
-      console.log("Response data:", data);
-      console.log("Response data (stringified):", JSON.stringify(data, null, 2));
-      console.log("Data keys:", Object.keys(data));
-      console.log("Data.error:", data.error);
-      console.log("Data.accepts:", data.accepts);
 
       if (!response.ok) {
-        // Extract error information from X402 response
-        let errorMsg = "Payment failed: ";
-
-        if (data.error) {
-          console.log("Error type:", typeof data.error);
-          console.log("Error object:", data.error);
-
-          if (typeof data.error === 'string') {
-            errorMsg += data.error;
-          } else if (data.error.message) {
-            errorMsg += data.error.message;
-          } else {
-            errorMsg += JSON.stringify(data.error);
-          }
+        // Payment failed - show user-friendly error
+        if (data.error && typeof data.error === 'string') {
+          throw new Error(data.error);
+        } else if (data.error && data.error.message) {
+          throw new Error(data.error.message);
+        } else if (data.details) {
+          throw new Error(data.details);
         } else {
-          errorMsg += "No error details provided. Full response: " + JSON.stringify(data);
+          throw new Error("Payment verification failed. Please try again.");
         }
-
-        console.error("Response not ok, full data:", JSON.stringify(data, null, 2));
-        console.error("Payment error:", errorMsg);
-        throw new Error(errorMsg);
       }
 
       setResult(data);
     } catch (err) {
       console.error("Mint error:", err);
-      console.error("Error type:", typeof err);
-      console.error("Error keys:", err && typeof err === "object" ? Object.keys(err) : "N/A");
 
-      // Better error message extraction
+      // Extract error message
       let errorMessage = "An error occurred";
 
       if (err instanceof Error) {
         errorMessage = err.message;
-        console.error("Error stack:", err.stack);
       } else if (typeof err === "object" && err !== null) {
-        // Try to extract meaningful error info
         const errObj = err as any;
-        if (errObj.message) {
-          errorMessage = errObj.message;
-        } else if (errObj.reason) {
-          errorMessage = errObj.reason;
-        } else if (errObj.code) {
-          errorMessage = `Error code: ${errObj.code}`;
-        } else {
-          errorMessage = JSON.stringify(err, Object.getOwnPropertyNames(err), 2);
-        }
+        errorMessage = errObj.message || errObj.reason || "Unknown error";
       } else if (typeof err === "string") {
         errorMessage = err;
       }
