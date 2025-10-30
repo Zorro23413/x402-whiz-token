@@ -15,6 +15,11 @@ const nextConfig: NextConfig = {
   experimental: {
     nodeMiddleware: true,
   },
+  // Reduce serverless function size by externalizing packages
+  serverExternalPackages: [
+    '@solana/web3.js',
+    '@solana/spl-token',
+  ],
 };
 
 export default nextConfig;
